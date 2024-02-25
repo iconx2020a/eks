@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context path="/medicomstestapp">
+
+    <!-- key name -->
+    <Environment name="key"
+                 value="key"
+                 type="java.lang.String"/>
+
+    <!-- key value -->
+    <Environment name="value"
+                 value="value"
+                 type="java.lang.String"/>
+
+   
+</Context>
+
+ 
+                    
