@@ -10,6 +10,9 @@ RUN mv apache-tomcat-10*/  tomcat/
 RUN mkdir /opt/tomcat/
 RUN mv tomcat/ /opt/
 ADD fnapp-env.war /opt/tomcat/webapps/
+ADD index.jsp /opt/tomcat/webapps/ROOT/
+ADD index.html /opt/tomcat/webapps/ROOT/
+ADD web.xml /opt/tomcat/webapps/ROOT/WEB-INF/
 WORKDIR /opt/tomcat/
 EXPOSE 8080
 CMD chmod +x /opt/tomcat/bin/catalina.sh

@@ -1,8 +1,7 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-         pageEncoding="ISO-8859-1"%>
-<!DOCTYPE html>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core"
+    prefix="c" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+ 
 <html>
     <head>
         <meta charset="ISO-8859-1">
@@ -18,7 +17,7 @@
                 <th>First Name</th>
                  <th>Last Name</th>
             </tr>
-            <c:forEach var="user" items="${users}">
+            <c:forEach var="user" items="${requestScope.users}">
                 <tr>
                      <td><c:out value="${user.ID}" /></td>
                     <td><c:out value="${user.firstName}" /></td>

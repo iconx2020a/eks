@@ -26,7 +26,9 @@ try{
     return null;
     }
 
-    public void addUser(int id, String fName, String lName) {
+    public boolean addUser(int id, String fName, String lName) {
+        if(conn == null)
+        return false;
         String sql = "insert into Person values (?,?,?)";
         try {
             ps = conn.prepareStatement(sql);
@@ -37,9 +39,12 @@ try{
         } catch (SQLException e) {
             System.out.println("SQL execution    failure");
         }
+        return true;
     }
 
     public boolean doesUserExist(int id) {
+        if(conn == null)
+        return false;
         String sql = "select * from Person where ID=?";
         try {
             ps = conn.prepareStatement(sql);
@@ -53,6 +58,8 @@ try{
     }
 
     public boolean isAdmin(int id, String password) {
+        if(conn == null)
+        return false;
         String sql = "select * from Admin where ID=? and Password=?";
         try {
             ps = conn.prepareStatement(sql);
