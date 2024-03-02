@@ -1,0 +1,32 @@
+---
+apiVersion: appmesh.k8s.aws/v1beta2
+kind: VirtualGateway
+metadata:
+  name: fnapp-ingress-gw
+spec:
+  namespaceSelector:
+    matchLabels:
+      gateway: fnapp-ingress-gw
+  podSelector:
+    matchLabels:
+      app: fnapp-ingress-gw
+  listeners:
+    - portMapping:
+        port: 8088
+        protocol: http
+---
+apiVersion: appmesh.k8s.aws/v1beta2
+kind: GatewayRoute
+metadata:
+  name: fnapp-route
+spec:
+  httpRoute:
+    match:
+      prefix: "/"
+    action:
+      target:
+        port: 8080
+        virtualService:
+          virtualServiceRef:
+            name: fnapp
+         
