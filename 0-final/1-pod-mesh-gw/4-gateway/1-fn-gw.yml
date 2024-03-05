@@ -1,0 +1,32 @@
+---
+apiVersion: appmesh.k8s.aws/v1beta2
+kind: VirtualGateway
+metadata:
+  name: in-gw
+spec:
+  namespaceSelector:
+    matchLabels:
+      gateway: in-gw
+  podSelector:
+    matchLabels:
+      app: in-gw
+  listeners:
+    - portMapping:
+        port: 8088
+        protocol: http
+---
+apiVersion: appmesh.k8s.aws/v1beta2
+kind: GatewayRoute
+metadata:
+  name: fnapp-route
+spec:
+  httpRoute:
+    match:
+      prefix: "/"
+    action:
+      target:
+        port: 8080
+        virtualService:
+          virtualServiceRef:
+            name: fn-app-svc
+         

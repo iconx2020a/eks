@@ -1,0 +1,17 @@
+apiVersion: appmesh.k8s.aws/v1beta2
+kind: Mesh
+metadata:
+  name: pod-service-mesh
+spec:
+  namespaceSelector:
+    matchLabels:
+      mesh: pod-service-mesh
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: default
+  labels:
+    mesh: pod-service-mesh
+    gateway: in-gw
+    appmesh.k8s.aws/sidecarInjectorWebhook: enabled

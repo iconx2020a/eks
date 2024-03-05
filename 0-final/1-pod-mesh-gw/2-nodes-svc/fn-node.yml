@@ -1,0 +1,47 @@
+---
+apiVersion: appmesh.k8s.aws/v1beta2
+kind: VirtualNode
+metadata:
+  name: fn-app-pod-svc
+spec:
+  podSelector:
+    matchLabels:
+      app: fn-app
+  listeners:
+    - portMapping:
+        port: 8080
+        protocol: http
+      healthCheck:
+        protocol: http
+        path: '/'
+        healthyThreshold: 2
+        unhealthyThreshold: 2
+        timeoutMillis: 2000
+        intervalMillis: 5000
+  serviceDiscovery:
+    dns:
+      hostname: fn-app-pod-svc.default.svc.cluster.local
+---
+apiVersion: appmesh.k8s.aws/v1beta2
+kind: VirtualService
+metadata:
+  name: fn-app-svc
+spec:
+  awsName: fn-app-svc.default.svc.cluster.local
+  provider:
+    virtualNode:
+      virtualNodeRef:
+        name: fn-app-pod-svc
+
+#expose virtual services
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fn-app-svc
+  labels:
+    app: fn-app
+spec:
+  ports:
+  - port: 8080
+    name: http

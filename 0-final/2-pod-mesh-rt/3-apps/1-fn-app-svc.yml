@@ -1,0 +1,53 @@
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: fnapp-green
+  labels:
+    app: fnapp-green
+spec:
+  containers:
+    - name: fnapp-green
+      image: iconx2020a/eks:fnapp-green
+      imagePullPolicy: Always
+      ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fnapp-green-pod-svc
+spec:
+  selector:
+    app: fnapp-green
+  ports:
+  - protocol: "TCP"
+    port: 8080
+    targetPort: 8080
+
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: fnapp-blue
+  labels:
+    app: fnapp-blue
+spec:
+  containers:
+    - name: fnapp-blue
+      image: iconx2020a/eks:fnapp-blue
+      imagePullPolicy: Always
+      ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fnapp-blue-pod-svc
+spec:
+  selector:
+    app: fnapp-blue
+  ports:
+  - protocol: "TCP"
+    port: 8080
+    targetPort: 8080

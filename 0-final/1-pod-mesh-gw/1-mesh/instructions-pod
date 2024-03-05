@@ -1,0 +1,124 @@
+
+Update context
+
+aws eks update-kubeconfig --name appmesh-cluster
+Run oidc
+
+eksctl utils associate-iam-oidc-provider --region=us-east-1 --cluster=appmesh-cluster --approve
+
+Clearing old iam policies and roles
+
+eksctl get iamserviceaccount --cluster appmesh-cluster   
+eksctl delete iamserviceaccount --cluster appmesh-cluster  --name appmesh-controller-sa --namespace appmesh-system
+
+uninstall LB
+helm list -n kube-system 
+helm uninstall aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system 
+
+Delete service account
+
+  eksctl delete iamserviceaccount \
+  --cluster=appmesh-cluster\
+  --namespace=kube-system \
+  --name=aws-load-balancer-controller 
+
+eksctl create iamserviceaccount \
+  --cluster=appmesh-cluster \
+  --namespace=kube-system \
+  --name=aws-load-balancer-controller \
+  --role-name AmazonEKSLoadBalancerControllerRole \
+  --attach-policy-arn=arn:aws:iam::826597467339:policy/AWSLoadBalancerControllerIAMPolicy \
+  --approve
+
+kubectl delete ns appmesh-system
+helm delete appmesh-controller -n appmesh-system
+
+Install LB
+
+helm uninstall aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system 
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+  -n kube-system \
+  --set clusterName=appmesh-cluster \
+  --set serviceAccount.create=false \
+  --set serviceAccount.name=aws-load-balancer-controller
+
+
+Install eksctl with brew install eksctl
+helm repo add eks https://aws.github.io/eks-charts
+
+Create the app mesh namespace
+kubectl create ns appmesh-system
+
+create appmesh controller sa
+
+eksctl create iamserviceaccount --cluster appmesh-cluster  --name appmesh-controller-sa --attach-policy-arn arn:aws:iam::aws:policy/AWSAppMeshFullAccess --override-existing-serviceaccounts --namespace appmesh-system --approve
+
+create appmesh envoy sa
+
+eksctl create iamserviceaccount --cluster appmesh-cluster \
+    --namespace appmesh-system \
+    --name envoy-proxy-sa \
+    --attach-policy-arn arn:aws:iam::826597467339:policy/AWSAppMeshEnvoyIAMPolicy  \
+    --override-existing-serviceaccounts \
+    --approve
+
+install appmesh controller
+
+helm install appmesh-controller eks/appmesh-controller --namespace appmesh-system --set region=us-east-1 --set serviceAccount.create=false --set serviceAccount.name=appmesh-controller-sa
+
+Run 
+kubectl -n appmesh-system get all 
+kubectl get crds | grep appmesh
+
+Go to code
+
+create Mesh - or service mesh
+app code
+curl -v http://frontend.default:8080/fn-app
+
+Add sidecar
+
+
+kubectl label namespace default mesh=pod-service-mesh
+kubectl label namespace default appmesh.k8s.aws/sidecarInjectorWebhook=enabled
+
+install v-nodes
+kubectl get virtualnode --all-namespaces
+aws appmesh list-virtual-nodes --mesh-name pod-service-mesh
+delete pof and recreate it
+
+gateway
+
+kubectl label namespace default gateway=in-gw
+kubectl get virtualgateway --all-namespaces
+
+kubectl create ns internet
+kubectl label namespace internet gateway=in-gw
+kubectl label namespace internet mesh=webapp
+
+kubectl create ns appmesh-workshop-ns
+kubectl label namespace appmesh-workshop-ns gateway=in-gw
+kubectl label namespace appmesh-workshop-ns mesh=webapp
+
+kubectl rollout restart deployment consumer -n consumer     
+
+kubectl rollout restart deployment in-gw -n internet    
+
+kubectl get po -n consumer
+## wait
+kubectl label namespace internet appmesh.k8s.aws/sidecarInjectorWebhook=enabled
+
+kubectl label namespace internet appmesh.k8s.aws/sidecarInjectorWebhook=disabled
+
+
+Host k8s-.elb.us-east-1.amazonaws.com 404 Not Found server: envoy
+
+curl -s http://myapp.internet.svc.cluster.local:9901/server_info | jq '.state'
+
+
+
+Now, if we go to the EC2 | Load Balancers section of the AWS Console, you will see the ALB created for the game application and the DNS name value associated with it (remember that IP addresses can change, so you need to always use the provided DNS name). An example is
+shown in the following screenshot:
+
+ 1 error(s) occurred and IAM Role stacks haven't been created properly, you may wish to check CloudFormation console
+2024-03-01 08:01:45 [✖]  waiter state transitioned to Failure

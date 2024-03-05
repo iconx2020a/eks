@@ -1,0 +1,47 @@
+---
+apiVersion: appmesh.k8s.aws/v1beta2
+kind: VirtualNode
+metadata:
+  name: fnapp-green-pod-svc
+spec:
+  podSelector:
+    matchLabels:
+      app: fnapp-green
+  listeners:
+    - portMapping:
+        port: 8080
+        protocol: http
+      healthCheck:
+        protocol: http
+        path: '/'
+        healthyThreshold: 2
+        unhealthyThreshold: 2
+        timeoutMillis: 2000
+        intervalMillis: 5000
+  serviceDiscovery:
+    dns:
+      hostname: fnapp-green-pod-svc.default.svc.cluster.local
+---
+apiVersion: appmesh.k8s.aws/v1beta2
+kind: VirtualService
+metadata:
+  name: fnapp-green-svc
+spec:
+  awsName: fnapp-green-svc.default.svc.cluster.local
+  provider:
+    virtualNode:
+      virtualNodeRef:
+        name: fnapp-green-pod-svc
+
+#expose virtual services
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fnapp-green-svc
+  labels:
+    app: fnapp-green
+spec:
+  ports:
+  - port: 8080
+    name: http
